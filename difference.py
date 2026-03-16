@@ -1,7 +1,10 @@
 import sys
 import numpy as np
 from sklearn.neighbors import KDTree
-from paths import CAT_DIR
+try:
+    from .paths import CAT_DIR
+except ImportError:
+    from paths import CAT_DIR
 import os
 
 
@@ -63,7 +66,7 @@ def find_new_row(array1, array2):
         value2 = (int(np.round(row2[2])), int(np.round(row2[3])))
         found = False
         for row1 in array1:
-            value1 = (int(np.round(row1[2])), np.round(int(row1[3])))
+            value1 = (int(np.round(row1[2])), int(np.round(row1[3])))
             if value1 == value2:
                 found = True
                 break

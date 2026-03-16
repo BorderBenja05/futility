@@ -41,7 +41,7 @@ def filetrier(args):
     elev = int(args['elev'])
     azim = int(args['azim'])
     chunks = bool(args['chunks'])
-    ortho = bool(args['chunks'])
+    ortho = bool(args['ortho'])
     outpath = args['outpath']
 
     if not outpath:

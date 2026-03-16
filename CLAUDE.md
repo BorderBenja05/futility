@@ -7,8 +7,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Install:**
 ```bash
 pip install .
-# or
-python setup.py install
+# or: pip install -e .  (editable/dev install)
+```
+
+**Run tests:**
+```bash
+python -m pytest tests/ -v
+# Single test file:
+python -m pytest tests/test_fim_scripts.py -v
 ```
 
 **Build package:**
@@ -19,9 +25,9 @@ python -m build
 **Run the CLI tool:**
 ```bash
 fim [options]
+# Show path to default config:
+fim -configpath
 ```
-
-There are no test or lint configurations defined in this project.
 
 ## Architecture
 

@@ -1,6 +1,12 @@
 import numpy as np
 import os
-from paths import FUTILITY_DIR, FUNPACKED_FITS, INJECTED_FITS, CAT_DIR
+from pathlib import Path
+try:
+    from .paths import FUTILITY_DIR, FUNPACKED_FITS, INJECTED_FITS, CAT_DIR
+except ImportError:
+    from paths import FUTILITY_DIR, FUNPACKED_FITS, INJECTED_FITS, CAT_DIR
+
+FIM_DATA_DIR = Path(FUTILITY_DIR) / 'fim_scripts' / 'fim_data'
 
 
 def read_txt_file(file_path):
@@ -41,16 +47,6 @@ def get_indexes_of_stars(data, threshold=.007, max_size = 20):
     print(f'there are {len(indexes)} sources that pass the star check for size and spread')
     return indexes
 
-def get_indexes_of_stars(data, threshold=.007, max_size = 20):
-    indexes = []
-    for i, row in enumerate(data):
-        if row[1] < threshold and (row[4] + row[5]) < max_size: #max size is the max sum of the major and minor axis'
-            if row[2] >80 and row[2] < 9495:
-                if row[3] > 80 and row[3] < 6307:
-                    indexes.append(i)
-    print(f'there are {len(indexes)} sources that pass the star check for size and spread')
-    return indexes
-
 def get_indexes_of_all_stars(data, threshold=.012):
     indexes = []
     for i, row in enumerate(data):
@@ -65,7 +61,7 @@ def getcenter(infile):
     fname = infile.replace('.fits', '.starfinder.cat')
     fname= os.path.basename(fname)
     if not os.path.exists(f'{CAT_DIR}/{fname}'):
-        os.system(f'source-extractor {infile}     -c /home/borderbenja/anaconda3/envs/pipeline/share/sextractor/default.sex     -FILTER_NAME /home/borderbenja/anaconda3/envs/pipeline/share/sextractor/default.conv     -PARAMETERS_NAME /home/borderbenja/anaconda3/envs/pipeline/share/sextractor/starfinder.param     -CATALOG_NAME {CAT_DIR}/{fname} -PSF_NAME /home/borderbenja/anaconda3/envs/pipeline/share/sextractor/default.psf')
+        os.system(f'source-extractor {infile}     -FILTER_NAME {FIM_DATA_DIR}/default.conv     -PARAMETERS_NAME {FIM_DATA_DIR}/default.param     -CATALOG_NAME {CAT_DIR}/{fname} -PSF_NAME {FIM_DATA_DIR}/default.psf')
     print(f'using catalog {fname}')
     data = read_txt_file(f'{CAT_DIR}/{fname}')
     indexes = get_indexes_above_threshold(data)
@@ -84,7 +80,7 @@ def getStars(infile):
     fname = infile.replace('.fits', '.starfinder.cat')
     fname= os.path.basename(fname)
     if not os.path.exists(f'{CAT_DIR}/{fname}'):
-        os.system(f'source-extractor {infile}     -c /home/borderbenja/anaconda3/envs/pipeline/share/sextractor/default.sex     -FILTER_NAME /home/borderbenja/anaconda3/envs/pipeline/share/sextractor/default.conv     -PARAMETERS_NAME /home/borderbenja/anaconda3/envs/pipeline/share/sextractor/starfinder.param     -CATALOG_NAME {CAT_DIR}/{fname} -PSF_NAME /home/borderbenja/anaconda3/envs/pipeline/share/sextractor/default.psf')
+        os.system(f'source-extractor {infile}     -FILTER_NAME {FIM_DATA_DIR}/default.conv     -PARAMETERS_NAME {FIM_DATA_DIR}/default.param     -CATALOG_NAME {CAT_DIR}/{fname} -PSF_NAME {FIM_DATA_DIR}/default.psf')
     print(f'using catalog {fname}')
     data = read_txt_file(f'{CAT_DIR}/{fname}')
     indexes = get_indexes_of_stars(data)
@@ -105,7 +101,7 @@ def analyze_sources(infile, chunksize = 60, chunked_shape=None):
     fname= os.path.basename(fname)
 
     if not os.path.exists(f'{CAT_DIR}/{fname}'):
-        os.system(f'source-extractor {infile}     -c /home/borderbenja/anaconda3/envs/pipeline/share/sextractor/default.sex     -FILTER_NAME /home/borderbenja/anaconda3/envs/pipeline/share/sextractor/default.conv     -PARAMETERS_NAME /home/borderbenja/anaconda3/envs/pipeline/share/sextractor/analysis.param     -CATALOG_NAME {CAT_DIR}/{fname} -PSF_NAME /home/borderbenja/anaconda3/envs/pipeline/share/sextractor/default.psf')
+        os.system(f'source-extractor {infile}     -FILTER_NAME {FIM_DATA_DIR}/default.conv     -PARAMETERS_NAME {FIM_DATA_DIR}/analysis.param     -CATALOG_NAME {CAT_DIR}/{fname} -PSF_NAME {FIM_DATA_DIR}/default.psf')
     else:
         print(f'using analysis catalog {fname}')
     data = read_txt_file(f'{CAT_DIR}/{fname}')
@@ -120,15 +116,13 @@ def analyze_sources(infile, chunksize = 60, chunked_shape=None):
     spreads = []
     mags = []
     elongations = []
-    # print("debug")
     for rownum, row in enumerate(new_data):
-        for colnum, entry in enumerate(row):
-            x.append(int(new_data[rownum][3]))
-            y.append(int(new_data[rownum][2]))
-            fwhms.append(new_data[rownum][5])
-            spreads.append(new_data[rownum][1])
-            mags.append(new_data[rownum][4])
-            elongations.append(new_data[rownum][6])
+        x.append(int(new_data[rownum][3]))
+        y.append(int(new_data[rownum][2]))
+        fwhms.append(new_data[rownum][5])
+        spreads.append(new_data[rownum][1])
+        mags.append(new_data[rownum][4])
+        elongations.append(new_data[rownum][6])
 
 
     return x, y, fwhms, spreads, mags, elongations

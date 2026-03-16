@@ -41,16 +41,6 @@ def get_indexes_of_stars(data, threshold=.007, max_size = 20):
     print(f'there are {len(indexes)} sources that pass the star check for size and spread')
     return indexes
 
-def get_indexes_of_stars(data, threshold=.007, max_size = 20):
-    indexes = []
-    for i, row in enumerate(data):
-        if row[1] < threshold and (row[4] + row[5]) < max_size: #max size is the max sum of the major and minor axis'
-            if row[2] >80 and row[2] < 9495:
-                if row[3] > 80 and row[3] < 6307:
-                    indexes.append(i)
-    print(f'there are {len(indexes)} sources that pass the star check for size and spread')
-    return indexes
-
 def get_indexes_of_all_stars(data, threshold=.012):
     indexes = []
     for i, row in enumerate(data):
@@ -120,15 +110,13 @@ def analyze_sources(infile, chunksize = 60, chunked_shape=None):
     spreads = []
     mags = []
     elongations = []
-    # print("debug")
     for rownum, row in enumerate(new_data):
-        for colnum, entry in enumerate(row):
-            x.append(int(new_data[rownum][3]))
-            y.append(int(new_data[rownum][2]))
-            fwhms.append(new_data[rownum][5])
-            spreads.append(new_data[rownum][1])
-            mags.append(new_data[rownum][4])
-            elongations.append(new_data[rownum][6])
+        x.append(int(new_data[rownum][3]))
+        y.append(int(new_data[rownum][2]))
+        fwhms.append(new_data[rownum][5])
+        spreads.append(new_data[rownum][1])
+        mags.append(new_data[rownum][4])
+        elongations.append(new_data[rownum][6])
 
 
     return x, y, fwhms, spreads, mags, elongations

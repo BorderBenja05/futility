@@ -102,23 +102,28 @@ def analyze_poisson_noise(infile, elev, azim, chunks, ortho, chunk_size=60, plot
         output_dir=None
     
 
-    plotter(infile, \
-            chunks, \
-            medians, \
-            means, \
-            stds,
-            fwhms, \
-            spreads, \
-            mags, \
-            x, \
-            y, \
-            elongations, \
-            elev, \
-            azim, \
-            output_dir=output_dir, \
-            chunkwidth=num_chunks_width, \
-            chunkheight=num_chunks_height,
-            ortho=ortho)
+    plot_args = {
+        'infile': infile,
+        'chunks': chunks,
+        'elev': elev,
+        'azim': azim,
+        'output_dir': output_dir,
+        'chunkwidth': num_chunks_width,
+        'chunkheight': num_chunks_height,
+        'ortho': ortho,
+    }
+    data_stats = {
+        'medians': medians,
+        'means': means,
+        'stds': stds,
+        'fwhms': fwhms,
+        'spreads': spreads,
+        'mags': mags,
+        'x': x,
+        'y': y,
+        'elongations': elongations,
+    }
+    plotter(plot_args, data_stats)
         
 
 

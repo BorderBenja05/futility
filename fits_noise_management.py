@@ -5,11 +5,15 @@ import matplotlib.pyplot as plt
 from astropy.io import fits
 from mpl_toolkits.mplot3d import Axes3D
 import argparse
-from paths import FUTILITY_DIR, OUTSIDE_DIR
+try:
+    from .paths import FUTILITY_DIR, OUTSIDE_DIR
+    from .get_sources import analyze_sources
+except ImportError:
+    from paths import FUTILITY_DIR, OUTSIDE_DIR
+    from get_sources import analyze_sources
 from pathlib import Path
-from get_sources import analyze_sources
 
-def analyze_poisson_noise(flats_file, chunk_size=60, plots=False, output_dir='plots', chunks=False):
+def analyze_poisson_noise(flats_file, chunk_size=60, plots=False, output_dir='plots', chunks=False, elev=40, azim=40):
     # Create the output directory if it doesn't exist
     if output_dir == None:
         output_dir='plots'
@@ -80,9 +84,11 @@ def analyze_poisson_noise(flats_file, chunk_size=60, plots=False, output_dir='pl
             L = len(flats_file)
             i = flats_file.find('telescope')
             name = flats_file[i + 12:L-5]
+        else:
+            name = flats_file
 
         #comment this line out if you dont want it interactive
-        plt.ion
+        plt.ion()
         
         # Create a grid for plotting
         x = np.arange(num_chunks_width + 1)
@@ -143,25 +149,7 @@ def analyze_poisson_noise(flats_file, chunk_size=60, plots=False, output_dir='pl
             plt.close()
             print(f"Plot saved as {output_path}")
 
-        new_data = analyze_sources(flats_file, chunksize = chunk_size, chunked_shape=chunked_shape)
-
-
-        x = []
-        y = []
-        fwhms = []
-        spreads = []
-        mags = []
-        elongations = []
-        print("debug")
-        for rownum, row in enumerate(new_data):
-            for colnum, entry in enumerate(row):
-                x.append(int(new_data[rownum][3]))
-                y.append(int(new_data[rownum][2]))
-                fwhms.append(new_data[rownum][5])
-                spreads.append(new_data[rownum][1])
-                mags.append(new_data[rownum][4])
-                elongations.append(new_data[rownum][6])
-        print("debug")
+        x, y, fwhms, spreads, mags, elongations = analyze_sources(flats_file, chunksize=chunk_size, chunked_shape=chunked_shape)
         # plot the FWHM
         fig = plt.figure(figsize=(15, 9))
         ax1 = fig.add_subplot(221, projection='3d')

@@ -1,4 +1,7 @@
-import sewpy
+try:
+    import sewpy
+except ImportError:
+    sewpy = None
 from astropy.io import ascii
 from astropy.table import QTable, Table
 import numpy as np
@@ -7,6 +10,8 @@ import os
 from pathlib import Path
 
 def get_catalog(fits_file):
+    if sewpy is None:
+        raise ImportError("sewpy is required for rotation_finder but is not installed")
     params=["NUMBER", "X_IMAGE", "Y_IMAGE", "MAG_AUTO"] # the params we want sewpy to include in its catalog
     sew = sewpy.SEW(params=params,     # make a function to find all the stars and catalog them
         config={"DETECT_MINAREA": 5, 
@@ -117,11 +122,7 @@ def get_cam_angle(inpath,source1, source2, scale=False, pos=False):
     table = get_catalog(inpath)
     # print(f'found: {len(table)} sources')
     pic_diff, Vector_pic_diff = pixel_separation(table)
-    if Vector_pic_diff[0]<0:
-        modifier=np.pi
-    else:
-        modifier=0
-    pic_angle = np.rad2deg(np.tan(Vector_pic_diff[0]/Vector_pic_diff[1])+modifier)
+    pic_angle = np.rad2deg(np.arctan2(Vector_pic_diff[1], Vector_pic_diff[0]))
     
     pix_scale = diff_physical/pic_diff 
     

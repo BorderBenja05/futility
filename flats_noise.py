@@ -15,7 +15,7 @@ def analyze_poisson_noise(data,chunk_size=30, just_return_denoise = False):
     num_chunks_height = img_height // chunk_size
     num_chunks_width = img_width // chunk_size
 
-    means
+    means = np.zeros((num_chunks_height + 1, num_chunks_width + 1))
     medians = np.zeros((num_chunks_height + 1, num_chunks_width + 1))
     stds = np.zeros((num_chunks_height + 1, num_chunks_width + 1))
     denoised_data = np.zeros(shape)

@@ -46,9 +46,7 @@ def main():
             'elev':elev, \
             'azim':azim, \
             'chunks':chunks, \
-            'ortho':ortho ,
-            'elev': elev,
-            'azim':azim
+            'ortho':ortho,
             }
     
 

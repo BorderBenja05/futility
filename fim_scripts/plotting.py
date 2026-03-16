@@ -13,11 +13,11 @@ def plotter(args, data_stats):
     medians = data_stats['medians']
     means = data_stats['means']
     stds = data_stats['stds']
-    fwhms = data_stats['']
-    spreads = data_stats['']
-    mags = data_stats['']
-    x = data_stats['y']
-    y = data_stats['x']
+    fwhms = data_stats['fwhms']
+    spreads = data_stats['spreads']
+    mags = data_stats['mags']
+    x = data_stats['x']
+    y = data_stats['y']
     elongations = data_stats['elongations']
     elev = args['elev']
     azim = args['azim']
@@ -50,7 +50,7 @@ def plotter(args, data_stats):
     else:
         name=infile
 
-    plt.ion # comment this line out if you dont want the window to be interactive
+    plt.ion() # comment this line out if you dont want the window to be interactive
     
 
 
