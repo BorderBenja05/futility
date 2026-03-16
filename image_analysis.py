@@ -3,10 +3,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
 from mpl_toolkits.mplot3d import Axes3D
-from paths import FUTILITY_DIR, OUTSIDE_DIR
 from pathlib import Path
-from get_sources import analyze_sources
-from futility.fim_scripts.plotting import plotter
+try:
+    from .paths import FUTILITY_DIR, OUTSIDE_DIR
+    from .get_sources import analyze_sources
+    from .fim_scripts.plotting import plotter
+except ImportError:
+    from paths import FUTILITY_DIR, OUTSIDE_DIR
+    from get_sources import analyze_sources
+    from fim_scripts.plotting import plotter
 
 def chunk_array(data,chunk_size=60):
     img_height, img_width = data.shape
@@ -46,7 +51,7 @@ def chunk_array(data,chunk_size=60):
     return median, medians, means, stds
 
 
-def analyze_poisson_noise(infile, chunks, ortho, chunk_size=60, plots=True, output_dir='plots'):
+def analyze_poisson_noise(infile, chunks, ortho, chunk_size=60, plots=True, output_dir='plots', elev=40, azim=40):
     # Create the output directory if it doesn't exist
     if output_dir == None:
         output_dir='plots'
@@ -91,21 +96,28 @@ def analyze_poisson_noise(infile, chunks, ortho, chunk_size=60, plots=True, outp
         output_dir=None
     
 
-    plotter(infile, \
-            chunks, \
-            medians, \
-            means, \
-            stds,
-            fwhms, \
-            spreads, \
-            mags, \
-            x, \
-            y, \
-            elongations, \
-            output_dir=output_dir, \
-            chunkwidth=num_chunks_width, \
-            chunkheight=num_chunks_height,
-            ortho=ortho)
+    plot_args = {
+        'infile': infile,
+        'chunks': chunks,
+        'elev': elev,
+        'azim': azim,
+        'output_dir': output_dir,
+        'chunkwidth': num_chunks_width,
+        'chunkheight': num_chunks_height,
+        'ortho': ortho,
+    }
+    data_stats = {
+        'medians': medians,
+        'means': means,
+        'stds': stds,
+        'fwhms': fwhms,
+        'spreads': spreads,
+        'mags': mags,
+        'x': x,
+        'y': y,
+        'elongations': elongations,
+    }
+    plotter(plot_args, data_stats)
         
 
 

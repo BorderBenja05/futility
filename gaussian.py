@@ -5,7 +5,10 @@ import time
 import numpy as np
 from astropy.io import fits
 import os
-from flats_noise import noise_maker1
+try:
+    from .flats_noise import noise_maker1
+except ImportError:
+    from flats_noise import noise_maker1
 
 def inject_star(dat, galx, galy, siga, sigb, injections):
         amp = np.random.uniform(675,5000)

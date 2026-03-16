@@ -5,7 +5,6 @@ setup(
     name='futility',
     version='0.3.4',
     packages=find_packages(),
-    scripts=['fim_scripts/fim.py'],
     entry_points={
         'console_scripts': [
             'fim=fim_scripts.fim:main',
@@ -20,15 +19,13 @@ setup(
     install_requires=[
         'numpy',
         'matplotlib',
-        'pathlib',
         'astropy',
-        'argparse',
-        'configparser',
+        'scikit-learn',
     ],
     author='Benny Border',
     author_email='borderbenja@gmail.com',
     description='various utilities for unpacking and analyzing .fits files',
-    long_description=open('README.md').read(),
+    long_description=open('README.md').read() if __import__('os').path.exists('README.md') else '',
     long_description_content_type='text/markdown',
     url='https://github.com/borderbenja05/futility',
     classifiers=[

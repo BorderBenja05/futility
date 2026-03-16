@@ -1,4 +1,7 @@
-from rotation_finder import get_catalog, get_cam_angle
+try:
+    from .rotation_finder import get_catalog, get_cam_angle
+except ImportError:
+    from rotation_finder import get_catalog, get_cam_angle
 import os
 from astropy.io import fits
 import numpy as np
@@ -69,6 +72,8 @@ def drift_calculator(inpath, source1, source2):
         Vxs[i] = Vx*pixscale_real
         Vys[i] = Vys[i]*pixscale_real
         # print(Vxs[i])
+
+    return Vxs, Vys, angle_real, pixscale_real
 
     
 
