@@ -6,15 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Install:**
 ```bash
-pip install .
-# or: pip install -e .  (editable/dev install)
+pip install -e .  # editable/dev install (recommended for development)
+pip install .     # standard install
 ```
 
 **Run tests:**
 ```bash
 python -m pytest tests/ -v
-# Single test file:
-python -m pytest tests/test_fim_scripts.py -v
+python -m pytest tests/test_fim_scripts.py -v          # single test file
+python -m pytest tests/test_fim_scripts.py::test_name -v  # single test
 ```
 
 **Build package:**
@@ -24,45 +24,56 @@ python -m build
 
 **Run the CLI tool:**
 ```bash
-fim [options]
-# Show path to default config:
-fim -configpath
+fim [infile]              # analyze a FITS file
+fim -v ELEV AZIM          # set 3D plot viewing angles
+fim -o PATH               # set output directory (default: plots/)
+fim -chunks               # enable chunked averaging
+fim -ortho                # orthographic projection
+fim -configpath            # show path to default.cfg
 ```
 
 ## Architecture
 
-This is a Python astronomy utility package (`futility`) for processing and analyzing FITS astronomical image files.
-
-### CLI Entry Point
-`fim_scripts/fim.py` — The `fim` console script entry point. Parses args (elevation/azimuth angles, output path, chunking options) and reads config from `default.cfg` (ConfigParser format).
-
-### Core Modules
-
-**`fits_noise_management.py`** — Primary noise analysis engine. Chunks FITS images and computes statistics (means, medians, standard deviations), then generates 3D matplotlib scatter plots saved to `plots/`.
-
-**`fim_scripts/image_analysis.py`** and **`image_analysis.py`** — Analysis wrappers around the noise management core.
-
-**`get_sources.py`** / **`fim_scripts/get_sources.py`** — Wraps the external `SExtractor` tool (`sex`/`source-extractor` command must be installed separately) to detect astronomical sources. Outputs `.cat` catalog files and filters sources by spread, size, and position thresholds to separate stars from galaxies. Returns FWHM, magnitude, elongation data.
-
-**`gaussian.py`** — Synthetic Gaussian star injection for testing/calibration.
-
-**`difference.py`** — KDTree-based object matching between reference and science images.
-
-**`rotation_finder.py`** / **`drift_calculator.py`** — Camera rotation and drift detection utilities.
-
-**`unpack_folder.py`** — Unpacks compressed FITS files (`.fz` format) using the external `funpack` tool.
+Python astronomy utility package (`futility`, v0.3.4) for processing and analyzing FITS image files. Entry point: `fim` console script → `fim_scripts.fim:main()`.
 
 ### Data Flow
-1. Input: FITS files (raw astronomical images, optionally compressed `.fz`)
-2. Unpack: `funpack` extracts to `funpacked_fits/`
-3. Source extraction: SExtractor produces `.cat` catalogs
-4. Analysis: Chunked noise statistics computed over image regions
-5. Output: PNG plots in `plots/`, matched source catalogs
+1. **Input** — Raw FITS files (optionally `.fz` compressed)
+2. **Unpack** — `unpack_folder.py` calls external `funpack` → output in `funpacked_fits/`
+3. **Source extraction** — `get_sources.py` wraps external SExtractor → `.cat` catalogs in `fim_scripts/fim_data/catalogs/`
+4. **Analysis** — `image_analysis.py` chunks images (default 60px), computes per-chunk means/medians/stddevs
+5. **Visualization** — `plotting.py` generates 3D matplotlib scatter plots → `plots/`
+6. **Matching** — `difference.py` uses KDTree to match sources between reference and science images
 
-### External Dependencies
-- **SExtractor** (`sex` or `source-extractor`) — must be installed on the system
-- **funpack** — for decompressing `.fz` FITS files
-- Python: `numpy`, `matplotlib`, `astropy`, `scikit-learn` (for KDTree)
+### Key Modules
 
-### Duplicate Files
-Several modules exist at both the root level and inside `fim_scripts/` (e.g., `get_sources.py`, `image_analysis.py`). The `fim_scripts/` versions are packaged and used by the CLI; the root-level versions are standalone scripts.
+| Module | Role |
+|--------|------|
+| `fim_scripts/fim.py` | CLI entry point — arg parsing, config loading (`default.cfg`) |
+| `fim_scripts/filefinder.py` | Recursive FITS file discovery with interactive fallback |
+| `fim_scripts/image_analysis.py` | Chunked Poisson noise analysis (packaged version) |
+| `fim_scripts/get_sources.py` | SExtractor wrapper — star/galaxy separation by spread threshold |
+| `fim_scripts/plotting.py` | 3D scatter plot generation (uses `Agg` backend in tests, `ion()` in CLI) |
+| `fits_noise_management.py` | Primary noise analysis engine (standalone version) |
+| `gaussian.py` | Synthetic Gaussian star injection for calibration |
+| `difference.py` | KDTree-based source matching (radius=4 default) |
+| `flats_noise.py` | Flat-field noise analysis |
+| `gym_teacher.py` | Gaussian injection with XML logging |
+
+### Duplicate Modules
+`get_sources.py` and `image_analysis.py` exist at both root and `fim_scripts/`. The `fim_scripts/` versions are the packaged ones used by the CLI; root versions are standalone scripts. When modifying functionality, update the `fim_scripts/` version (it's what gets installed).
+
+### External System Dependencies
+- **SExtractor** (`sex` or `source-extractor` command) — required for source detection
+- **funpack** — required for `.fz` FITS decompression
+- SExtractor config files live in `fim_scripts/fim_data/` (`default.sex`, `default.conv`, `starfinder.param`, `default.psf`)
+
+### Source Detection Thresholds
+Star/galaxy filtering uses position bounds X ∈ [80, 9495], Y ∈ [80, 6307] and spread-based classification. These values are hardcoded in `get_sources.py`.
+
+### Config
+`default.cfg` (ConfigParser format) at both root and `fim_scripts/` — stores default `elev`, `azim`, `outpath`, and `inpath` values. The `fim_scripts/` copy is the one included in the installed package.
+
+### Testing Notes
+- Tests monkeypatch SExtractor calls and file I/O (no external tools needed to run tests)
+- Tests use matplotlib `Agg` backend for headless rendering
+- Package uses `setup.py` (no pyproject.toml) — `python_requires >= 3.6`

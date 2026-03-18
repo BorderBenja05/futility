@@ -1,0 +1,12 @@
+NUMBER                   Running object number
+SPREAD_MODEL             Spread parameter from model-fitting                                    
+X_IMAGE                  Object position along x                                   [pixel]
+Y_IMAGE                  Object position along y                                   [pixel]
+A_IMAGE                  Profile RMS along major axis                              [pixel]
+B_IMAGE                  Profile RMS along minor axis                              [pixel]
+ALPHA_SKY                Right ascension of barycenter (native)                    [deg]
+DELTA_SKY                Declination of barycenter (native)                        [deg]
+ALPHA_J2000              Right ascension of barycenter (J2000)                     [deg]
+DELTA_J2000              Declination of barycenter (J2000)                         [deg]         
+CLASS_STAR               Star/galaxy classifier                                    [unitless]
+FLUX_AUTO                Kron-like automated aperture flux                         [count]
